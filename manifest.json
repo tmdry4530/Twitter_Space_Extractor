@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Twitter Space Extractor (TSE)",
+  "short_name": "TSE",
+  "version": "1.1.0",
+  "description": "트위터 스페이스 HLS(m3u8) 자동 감지 → Referer 주입 → M4A 무손실 추출(확장 하나로 완료)",
+  "action": { "default_popup": "popup.html" },
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "webRequest",
+    "notifications",
+    "downloads",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "*://*.pscp.tv/*",
+    "*://*.video.pscp.tv/*",
+    "*://*.periscope.tv/*",
+    "*://twitter.com/*",
+    "*://x.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "web_accessible_resources": [
+    {
+      "resources": ["offscreen.html", "offscreen.js", "lib/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

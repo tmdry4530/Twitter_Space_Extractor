@@ -49,9 +49,11 @@ async function ensureFF() {
   if (ffmpeg) return;
   ffmpeg = createFFmpeg({
     corePath: chrome.runtime.getURL("lib/ffmpeg-core.js"),
-    workerPath: chrome.runtime.getURL("lib/ffmpeg-core.worker.js"),
+    // workerPath: chrome.runtime.getURL("lib/ffmpeg-core.worker.js"), // 이 줄은 createFFmpeg 옵션에 직접 포함되지 않음
     wasmPath: chrome.runtime.getURL("lib/ffmpeg-core.wasm"),
     log: false,
+    // 이 옵션을 추가하여 blob 사용을 비활성화합니다.
+    mainName: "main",
   });
   await ffmpeg.load();
 

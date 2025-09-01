@@ -115,6 +115,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   if (msg.type === "CONVERT_M4A") {
     (async () => {
+      const current = await getJob();
+      if (current.status !== "idle") {
+        const message = "이미 다른 변환 작업이 진행 중입니다.";
+        sendResponse({ ok: false, message });
+        chrome.notifications?.create({
+          type: "basic",
+          iconUrl: "icon128.png",
+          title: "TSE",
+          message,
+        });
+        return;
+      }
+
       const job = {
         id: crypto.randomUUID(),
         url: msg.url,
@@ -132,7 +145,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         url: msg.url,
         jobId: job.id,
       });
-      sendResponse(true);
+      sendResponse({ ok: true });
     })();
     return true;
   }

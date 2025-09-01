@@ -68,8 +68,12 @@ btnConvert.addEventListener("click", async () => {
     );
     return;
   }
+  const res = await chrome.runtime.sendMessage({ type: "CONVERT_M4A", url });
+  if (!res || res.ok === false) {
+    appendLog(res?.message || "다른 변환 작업이 이미 진행 중입니다.");
+    return;
+  }
   appendLog("변환 시작… (팝업 닫아도 계속 진행)");
-  await chrome.runtime.sendMessage({ type: "CONVERT_M4A", url });
 });
 
 btnCancel.addEventListener("click", async () => {

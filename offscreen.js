@@ -8,6 +8,7 @@ let currentPct = 0;
 let lastTick = Date.now();
 let ffmpegRunning = false;
 let canceledSent = false;
+let timeoutIntervalId = null;
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "OFFSCREEN_CONVERT") {
@@ -75,7 +76,11 @@ async function ensureFF() {
     progress(currentJobId, p, "리먹스 진행…");
   });
 
-  setInterval(() => {
+  if (timeoutIntervalId) {
+    clearInterval(timeoutIntervalId);
+    timeoutIntervalId = null;
+  }
+  timeoutIntervalId = setInterval(() => {
     if (!currentJobId) return;
     if (Date.now() - lastTick > 60000) {
       handleCancel("네트워크 타임아웃(60s 무진행)").catch(() => {});
@@ -86,6 +91,10 @@ async function ensureFF() {
 async function handleCancel(reason = "사용자 취소") {
   try {
     cancelFlag = true;
+    if (timeoutIntervalId) {
+      clearInterval(timeoutIntervalId);
+      timeoutIntervalId = null;
+    }
     try {
       aborter?.abort();
     } catch (e) {}

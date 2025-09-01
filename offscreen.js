@@ -117,13 +117,34 @@ async function convert(jobId, masterUrl) {
 
   for (let i = 0; i < N; i++) {
     if (cancelFlag) throw new Error("사용자 취소");
-    aborter = new AbortController();
     const u = segments[i];
-    const res = await fetch(u, {
-      credentials: "include",
-      signal: aborter.signal,
-    });
-    if (!res.ok) throw new Error(`세그먼트 실패: ${res.status} ${u}`);
+    let res;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      if (cancelFlag) throw new Error("사용자 취소");
+      aborter = new AbortController();
+      console.log(
+        `[convert] 세그먼트 ${i + 1}/${N} 다운로드 시도 ${attempt}: ${u}`
+      );
+      try {
+        res = await fetch(u, {
+          credentials: "include",
+          signal: aborter.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        break;
+      } catch (err) {
+        console.log(
+          `[convert] 시도 ${attempt} 실패: ${err?.message || err}`
+        );
+        if (attempt === 3) {
+          throw new Error(
+            `세그먼트 다운로드 실패(3회 시도 실패): ${u} - ${err?.message || err}`
+          );
+        }
+        const delay = 500 * Math.pow(2, attempt - 1);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
     const ab = await res.arrayBuffer();
     const name = `seg_${String(i).padStart(5, "0")}${guessExt(u)}`;
     ffmpeg.FS("writeFile", name, new Uint8Array(ab));

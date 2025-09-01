@@ -191,11 +191,20 @@ async function convert(jobId, masterUrl) {
       "+faststart",
       "out.m4a"
     );
-  } finally {
-    ffmpegRunning = false;
-  }
+    } finally {
+      ffmpegRunning = false;
+    }
 
-  if (cancelFlag) throw new Error("사용자 취소");
+    try {
+      for (const name of segNames) {
+        ffmpeg.FS("unlink", name);
+      }
+      ffmpeg.FS("unlink", "local.m3u8");
+    } catch (e) {
+      // cleanup failure is non-critical
+    }
+
+    if (cancelFlag) throw new Error("사용자 취소");
 
   // === 대용량 안전 저장: 조각 전송 ===
   const data = ffmpeg.FS("readFile", "out.m4a"); // Uint8Array

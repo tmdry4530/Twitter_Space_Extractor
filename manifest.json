@@ -4,6 +4,10 @@
   "short_name": "TSE",
   "version": "1.1.0",
   "description": "트위터 스페이스 HLS(m3u8) 자동 감지 → Referer 주입 → M4A 무손실 추출(확장 하나로 완료)",
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "action": { "default_popup": "popup.html" },
   "permissions": [
     "storage",
